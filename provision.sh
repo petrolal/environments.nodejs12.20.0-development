@@ -1,46 +1,52 @@
 #!/bin/bash
-# provision-no-curl.sh - Instala Node.js sem usar curl
+# provision-binary-wget.sh - Instala Node.js usando wget
 
 set -e
 
 NODE_VERSION="12.20.0"
 NODE_URL="https://nodejs.org/download/release/v$NODE_VERSION/node-v$NODE_VERSION-linux-x64.tar.xz"
-INSTALL_DIR="/opt/nodejs"
+INSTALL_DIR="/opt/node-v$NODE_VERSION"
 
 print_status() { echo -e "\033[0;32m[INFO]\033[0m $1"; }
 
-# Instalar wget (que pode não ter o mesmo problema)
-pacman -S --noconfirm wget xz
+# 1. Instalar wget (que não tem o problema do OpenSSL)
+print_status "Instalando wget..."
+pacman -S --needed --noconfirm wget xz
 
-# Criar diretório de instalação
+# 2. Download com wget
+print_status "Baixando Node.js $NODE_VERSION..."
+wget $NODE_URL -O /tmp/node.tar.xz
+
+# 3. Extrair e instalar
 mkdir -p $INSTALL_DIR
-cd $INSTALL_DIR
+tar -xf /tmp/node.tar.xz -C $INSTALL_DIR --strip-components=1
+rm /tmp/node.tar.xz
 
-# Download com wget instead of curl
-print_status "Baixando Node.js $NODE_VERSION com wget..."
-wget $NODE_URL
+# 4. Links simbólicos
+ln -sf $INSTALL_DIR/bin/node /usr/local/bin/node
+ln -sf $INSTALL_DIR/bin/npm /usr/local/bin/npm
+ln -sf $INSTALL_DIR/bin/npx /usr/local/bin/npx
 
-# Extrair e instalar
-tar -xf node-v$NODE_VERSION-linux-x64.tar.xz
-rm node-v$NODE_VERSION-linux-x64.tar.xz
-
-# Links simbólicos
-ln -sf $INSTALL_DIR/node-v$NODE_VERSION-linux-x64/bin/node /usr/local/bin/node
-ln -sf $INSTALL_DIR/node-v$NODE_VERSION-linux-x64/bin/npm /usr/local/bin/npm
-ln -sf $INSTALL_DIR/node-v$NODE_VERSION-linux-x64/bin/npx /usr/local/bin/npx
-
-# Instalar yarn
-print_status "Instalando Yarn..."
-./node-v$NODE_VERSION-linux-x64/bin/npm install -g yarn
-ln -sf $INSTALL_DIR/node-v$NODE_VERSION-linux-x64/bin/yarn /usr/local/bin/yarn
+# 5. Instalar yarn
+$INSTALL_DIR/bin/npm install -g yarn
+ln -sf $INSTALL_DIR/bin/yarn /usr/local/bin/yarn
 
 print_status "Node.js $NODE_VERSION instalado com sucesso!"
 node --version
+npm --version
 
-print_status "Instalando Angular cli..."
+print_status "Instalando Angular CLI e Ionic CLI..."
 npm install -g @angular/cli
-
-print_Status "Instalando Ionic Cli..."
 npm install -g @ionic/cli
 
-print_status "Angular CLI e Ionic CLI instalados com sucesso!"
+print_status "Angular cli e Ionic CLI instalados com sucesso!"
+
+directory="/vagrant"
+
+if [ -n "$(ls -A "$directory")" ]; then
+  echo "Building projects.."
+  cd /vagrant && npm install
+else
+  echo "Don\' have projects in vagrant directory... Clone to use"
+fi
+
