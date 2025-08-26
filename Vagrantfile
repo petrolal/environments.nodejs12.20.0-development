@@ -6,6 +6,11 @@ Vagrant.configure("2") do |config|
   # Network in bridged mode
   config.vm.network "public_network", :dev => "wlan0"
 
+  # Foward deafult node ports
+  config.vm.network "forwarded_port", guest: 4200, host: 4200
+  config.vm.network "forwarded_port", guest: 8100, host: 8100
+  config.vm.network "forwarded_port", guest: 3000, host: 3000
+  
   config.vm.synced_folder "./shared", "/vagrant", type: "rsync",
     rsync__args: [
       "--verbose",           # Mostrar o que está sincronizando
@@ -28,8 +33,8 @@ Vagrant.configure("2") do |config|
 
   # Provider Config 
   config.vm.provider :libvirt do |libvirt|
-    libvirt.memory = 1024
-    libvirt.cpus = 2
+    libvirt.memory = 4096
+    libvirt.cpus = 4
     libvirt.driver = "kvm"
   end
   
