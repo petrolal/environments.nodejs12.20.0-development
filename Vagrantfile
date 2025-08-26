@@ -6,20 +6,15 @@ Vagrant.configure("2") do |config|
   # Network in bridged mode
   config.vm.network "public_network", :dev => "wlan0"
 
-  config.vm.synced_folder "./shared", "/vagrant_data", type: "rsync",
-    rsync__args: ["--verbose", "--archive", "--delete", "-z"],
-    rsync__exclude: [
-      ".git/",
-      "node_modules/",
-      ".DS_Store",
-      "*.log",
-      "*.tmp",
-      ".vagrant/",
-      ".idea/",
-      "vendor/",
-      "dist/",
-      "build/"
+  config.vm.synced_folder "./shared", "/vagrant", type: "rsync",
+    rsync__args: [
+      "--verbose",           # Mostrar o que está sincronizando
+      "--archive",           # Modo arquivo (preserva permissões)
+      "--delete",            # Deletar arquivos removidos
+      "-z",                  # Comprimir durante transferência
+      "--chmod=Du=rwx,Dg=rx,Do=rx,Fu=rw,Fg=r,Fo=r"  # Permissões:attr_writer :attr_names
     ],
+    rsync__exclude: get_exclude_list(),
     rsync__auto: true
 
   # Trigger para sincronizar após provisionamento
