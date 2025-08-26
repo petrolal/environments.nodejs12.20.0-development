@@ -19,7 +19,22 @@ Vagrant.configure("2") do |config|
       "vendor/",
       "dist/",
       "build/"
+    ],
+    rsync__auto: true
+
+  # Trigger para sincronizar após provisionamento
+  config.trigger.after :up do |trigger|
+    trigger.run = {inline: "echo '📦 Sincronizando arquivos...'; vagrant rsync"}
+  end
+
+  # Função para lista de exclusões (opcional)
+  def get_exclude_list
+    [
+      ".git/", "node_modules/", "vendor/", "dist/", "build/",
+      "*.log", "*.tmp", ".DS_Store", ".vagrant/", ".idea/",
+      "npm-debug.log*", "yarn-debug.log*", "yarn-error.log*"
     ]
+  end
 
   # Provider Config 
   config.vm.provider :libvirt do |libvirt|
