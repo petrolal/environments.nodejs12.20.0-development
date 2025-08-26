@@ -14,21 +14,16 @@ Vagrant.configure("2") do |config|
       "-z",                  # Comprimir durante transferência
       "--chmod=Du=rwx,Dg=rx,Do=rx,Fu=rw,Fg=r,Fo=r"  # Permissões:attr_writer :attr_names
     ],
-    rsync__exclude: get_exclude_list(),
+    rsync__exclude: [
+      ".git/", "node_modules/", "vendor/", "dist/", "build/",
+      "*.log", "*.tmp", ".DS_Store", ".vagrant/", ".idea/",
+      "npm-debug.log*", "yarn-debug.log*", "yarn-error.log*"
+    ],
     rsync__auto: true
 
   # Trigger para sincronizar após provisionamento
   config.trigger.after :up do |trigger|
     trigger.run = {inline: "echo '📦 Sincronizando arquivos...'; vagrant rsync"}
-  end
-
-  # Função para lista de exclusões (opcional)
-  def get_exclude_list
-    [
-      ".git/", "node_modules/", "vendor/", "dist/", "build/",
-      "*.log", "*.tmp", ".DS_Store", ".vagrant/", ".idea/",
-      "npm-debug.log*", "yarn-debug.log*", "yarn-error.log*"
-    ]
   end
 
   # Provider Config 
