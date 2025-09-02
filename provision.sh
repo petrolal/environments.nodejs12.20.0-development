@@ -1,9 +1,9 @@
 #!/bin/bash
-# provision-binary-wget.sh - Instala Node.js usando wget
-
 set -e
 
 NODE_VERSION="12.20.0"
+ANGULAR_VERSION="7.3.9"
+IONIC_VERSION="6.20.9"
 NODE_URL="https://nodejs.org/download/release/v$NODE_VERSION/node-v$NODE_VERSION-linux-x64.tar.xz"
 INSTALL_DIR="/opt/node-v$NODE_VERSION"
 
@@ -36,17 +36,7 @@ node --version
 npm --version
 
 print_status "Instalando Angular CLI e Ionic CLI..."
-npm install -g @angular/cli
-npm install -g @ionic/cli
+npm install -g @angular/cli@$ANGULAR_VERSION
+npm install -g @ionic/cli@$IONIC_VERSION
 
 print_status "Angular cli e Ionic CLI instalados com sucesso!"
-
-directory="/vagrant"
-
-if [ -n "$(ls -A "$directory")" ]; then
-  echo "Building projects.."
-  cd /vagrant && npm install
-else
-  echo "Don\' have projects in vagrant directory... Clone to use"
-fi
-
